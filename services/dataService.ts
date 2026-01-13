@@ -3,27 +3,29 @@ import { Order, Product, Customer, Supplier, Employee } from '../types';
 
 /**
  * IMPORTANTE: Para Render, usamos import.meta.env.VITE_API_URL.
- * Asegúrate de configurar esta variable en el panel de Render.
  */
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api';
+const getBaseUrl = () => {
+  // Intentamos obtener la variable de Vite, si no, usamos el fallback
+  const rawUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:10000/api';
+  // Limpiamos barras diagonales duplicadas al final
+  return rawUrl.replace(/\/+$/, '');
+};
+
+const API_BASE_URL = getBaseUrl();
 
 class DataService {
   /**
-   * Verifica si la API está respondiendo (Endpoint de salud)
+   * Verifica si la API está respondiendo
    */
   async checkHealth(): Promise<boolean> {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
-      
+      console.log(`🔍 Verificando salud en: ${API_BASE_URL}/health`);
       const res = await fetch(`${API_BASE_URL}/health`, { 
-        signal: controller.signal,
         headers: { 'Accept': 'application/json' }
       });
-      clearTimeout(timeoutId);
       return res.ok;
     } catch (e) {
-      console.warn("API Offline o no configurada:", API_BASE_URL);
+      console.error("❌ Error de conexión con API:", e);
       return false;
     }
   }
@@ -33,24 +35,31 @@ class DataService {
    */
   async login(usuario: string, clave: string): Promise<{ success: boolean; user?: any; error?: string }> {
     try {
+      console.log(`🔐 Intentando login en: ${API_BASE_URL}/auth/login`);
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usuario, clave })
       });
       
-      if (!response.ok) return { success: false, error: 'Credenciales inválidas' };
-      return await response.json();
-    } catch (e) {
-      // Fallback para desarrollo local
-      if (usuario === 'admin' && clave === 'admin') {
-        return { success: true, user: { nombre: 'Admin Tayta (Local)', rol: 'ADMIN' } };
+      const data = await response.json();
+      if (!response.ok) return { success: false, error: data.error || 'Credenciales inválidas' };
+      return data;
+    } catch (e: any) {
+      console.error("❌ Error en Login Fetch:", e);
+      
+      // Fallback para desarrollo local si la API no está configurada
+      if (usuario === 'admin' && clave === 'admin' && API_BASE_URL.includes('localhost')) {
+        return { success: true, user: { nombre: 'Admin Local', rol: 'ADMIN' } };
       }
-      return { success: false, error: 'No se pudo conectar con la API de Render' };
+      
+      return { 
+        success: false, 
+        error: `Error de red: ${e.message}. Verifica que el Backend esté encendido en Render.` 
+      };
     }
   }
 
-  // Mapeos de datos optimizados para las tablas de SQL Server proporcionadas
   async getProductos(): Promise<Product[]> {
     try {
       const res = await fetch(`${API_BASE_URL}/productos`);
