@@ -16,97 +16,79 @@ export const Config: React.FC = () => {
   };
 
   return (
-    <div className="p-8 space-y-8 h-full overflow-y-auto custom-scrollbar animate-in fade-in duration-500">
+    <div className="p-8 space-y-8 h-full overflow-y-auto custom-scrollbar bg-background-dark animate-in fade-in duration-500">
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Configuración y Despliegue</h2>
-          <p className="text-slate-500">Gestión de conexión GitHub -> Render -> Azure SQL</p>
+          <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">Configuración Monorepo</h2>
+          <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em]">1 Repositorio GitHub -> 2 Servicios Render</p>
         </div>
-        <div className={`px-4 py-2 rounded-full border flex items-center gap-2 ${
-          apiStatus === 'online' ? 'bg-green-500/10 border-green-500/30 text-green-500' : 
-          apiStatus === 'offline' ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-white/5 border-white/10 text-slate-500'
+        <div className={`px-6 py-3 rounded-2xl border-2 flex items-center gap-3 transition-all ${
+          apiStatus === 'online' ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-red-500/10 border-red-500/30 text-red-500'
         }`}>
-          <span className={`size-2 rounded-full ${apiStatus === 'online' ? 'bg-green-500 animate-pulse' : apiStatus === 'offline' ? 'bg-red-500' : 'bg-slate-500'}`}></span>
-          <span className="text-[10px] font-black uppercase tracking-widest">API Render: {apiStatus}</span>
-          <button onClick={checkConnection} className="material-symbols-outlined text-sm ml-2 hover:rotate-180 transition-transform">refresh</button>
+          <span className={`size-3 rounded-full ${apiStatus === 'online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
+          <span className="text-xs font-black uppercase tracking-widest">Estado API: {apiStatus}</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Guía de Pasos */}
-        <div className="space-y-6">
-          <div className="bg-card-dark border border-border-dark p-8 rounded-[2rem] shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <span className="material-symbols-outlined text-9xl">terminal</span>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {/* Configuración del Servicio de Backend */}
+        <div className="bg-card-dark border-2 border-border-dark p-8 rounded-[2.5rem] relative overflow-hidden group hover:border-primary transition-colors">
+          <div className="absolute -right-8 -top-8 opacity-5 group-hover:opacity-10 transition-opacity">
+            <span className="material-symbols-outlined text-[12rem]">dns</span>
+          </div>
+          <h3 className="text-primary font-black uppercase tracking-widest text-sm mb-6 flex items-center gap-2">
+            <span className="material-symbols-outlined">settings_ethernet</span> Servicio 1: Backend (Web Service)
+          </h3>
+          <div className="space-y-4 relative z-10">
+            <div className="bg-background-dark/50 p-4 rounded-2xl border border-white/5">
+              <p className="text-white text-xs font-bold mb-2">Configuración en Render:</p>
+              <ul className="text-[11px] text-slate-400 space-y-2 font-medium">
+                <li>• <strong className="text-slate-200">Environment:</strong> Node</li>
+                <li>• <strong className="text-slate-200">Build Command:</strong> <code className="bg-black px-1 rounded text-primary">npm install</code></li>
+                <li>• <strong className="text-slate-200">Start Command:</strong> <code className="bg-black px-1 rounded text-primary">node server.js</code></li>
+              </ul>
             </div>
-            <h3 className="text-primary font-black uppercase tracking-widest text-sm mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined">rocket_launch</span> Guía de Lanzamiento
-            </h3>
-            
-            <div className="space-y-8 relative z-10">
-              <div className="flex gap-4">
-                <div className="size-8 rounded-full bg-primary text-background-dark flex items-center justify-center font-black shrink-0">1</div>
-                <div>
-                  <h4 className="text-white font-bold text-sm">Vincular GitHub</h4>
-                  <p className="text-slate-500 text-xs mt-1">Sube este código a un repositorio. Render se sincronizará automáticamente con cada 'push'.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="size-8 rounded-full bg-primary text-background-dark flex items-center justify-center font-black shrink-0">2</div>
-                <div>
-                  <h4 className="text-white font-bold text-sm">Crear Web Service (Backend)</h4>
-                  <p className="text-slate-500 text-xs mt-1">En Render, crea un 'Web Service'. Este contendrá tu API Node.js que se conecta a Azure SQL.</p>
-                  <div className="mt-2 p-3 bg-black/40 rounded-lg border border-white/5 font-mono text-[10px] text-slate-400">
-                    Environment Variable:<br/>
-                    <span className="text-primary">DB_CONNECTION_STRING</span> = mssql://user:pass@server...
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="size-8 rounded-full bg-primary text-background-dark flex items-center justify-center font-black shrink-0">3</div>
-                <div>
-                  <h4 className="text-white font-bold text-sm">Desplegar Static Site (Frontend)</h4>
-                  <p className="text-slate-500 text-xs mt-1">Crea un 'Static Site' en Render para esta App. Conéctala al mismo repo de GitHub.</p>
-                  <div className="mt-2 p-3 bg-black/40 rounded-lg border border-white/5 font-mono text-[10px] text-slate-400">
-                    Environment Variable:<br/>
-                    <span className="text-primary">API_URL</span> = https://tu-backend.onrender.com/api
-                  </div>
-                </div>
-              </div>
+            <div className="bg-primary/10 p-4 rounded-2xl border border-primary/20">
+              <p className="text-primary text-[10px] font-black uppercase mb-1">Variable de Entorno Obligatoria:</p>
+              <code className="text-[11px] text-white break-all">DB_URL = mssql://usuario:pass@servidor.database.windows.net/DB</code>
             </div>
           </div>
         </div>
 
-        {/* Snippet de Backend Sugerido */}
-        <div className="bg-surface-dark border border-border-dark p-8 rounded-[2rem] flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-slate-400 font-black uppercase tracking-widest text-[10px]">Ejemplo Backend (server.js)</h3>
-            <span className="text-[10px] font-bold text-blue-400 bg-blue-400/10 px-2 py-1 rounded">Node.js + mssql</span>
+        {/* Configuración del Servicio de Frontend */}
+        <div className="bg-card-dark border-2 border-border-dark p-8 rounded-[2.5rem] relative overflow-hidden group hover:border-blue-500 transition-colors">
+          <div className="absolute -right-8 -top-8 opacity-5 group-hover:opacity-10 transition-opacity">
+            <span className="material-symbols-outlined text-[12rem]">web</span>
           </div>
-          <div className="flex-1 bg-black/60 rounded-xl p-4 font-mono text-[11px] text-slate-300 overflow-x-auto leading-relaxed custom-scrollbar">
-            <pre>{`const express = require('express');
-const sql = require('mssql');
-const app = express();
-
-const config = process.env.DB_URL;
-
-app.get('/api/productos', async (req, res) => {
-  try {
-    let pool = await sql.connect(config);
-    let result = await pool.request()
-      .query('SELECT * FROM Productos WHERE Eliminado = 0');
-    res.json(result.recordset);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-});
-
-app.listen(3001);`}</pre>
+          <h3 className="text-blue-500 font-black uppercase tracking-widest text-sm mb-6 flex items-center gap-2">
+            <span className="material-symbols-outlined">browser_updated</span> Servicio 2: Frontend (Static Site)
+          </h3>
+          <div className="space-y-4 relative z-10">
+            <div className="bg-background-dark/50 p-4 rounded-2xl border border-white/5">
+              <p className="text-white text-xs font-bold mb-2">Configuración en Render:</p>
+              <ul className="text-[11px] text-slate-400 space-y-2 font-medium">
+                <li>• <strong className="text-slate-200">Build Command:</strong> <code className="bg-black px-1 rounded text-blue-400">npm run build</code></li>
+                <li>• <strong className="text-slate-200">Publish Directory:</strong> <code className="bg-black px-1 rounded text-blue-400">dist</code></li>
+              </ul>
+            </div>
+            <div className="bg-blue-500/10 p-4 rounded-2xl border border-blue-500/20">
+              <p className="text-blue-400 text-[10px] font-black uppercase mb-1">Variable de Entorno Obligatoria:</p>
+              <code className="text-[11px] text-white break-all">VITE_API_URL = https://tu-backend-tayta.onrender.com/api</code>
+            </div>
           </div>
-          <p className="text-[10px] text-slate-600 italic">Este código debe vivir en tu repositorio de Backend para hablar con Azure SQL.</p>
         </div>
+      </div>
+
+      <div className="bg-surface-dark border-2 border-border-dark p-8 rounded-[2.5rem]">
+        <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary">shield_lock</span> 
+          Recordatorio de Seguridad Azure
+        </h3>
+        <p className="text-slate-400 text-xs leading-relaxed">
+          Para que el <strong>Servicio 1 (Backend)</strong> pueda hablar con Azure, debes ir al Portal de Azure e incluir la IP de salida de Render en el Firewall. 
+          <br/><br/>
+          <span className="bg-white/5 px-2 py-1 rounded text-primary font-bold">Tip:</span> Como las IPs de Render cambian, la forma más sencilla es activar la opción <strong className="text-white">"Allow Azure services and resources to access this server"</strong> en la configuración de Redes de tu SQL Database.
+        </p>
       </div>
     </div>
   );
