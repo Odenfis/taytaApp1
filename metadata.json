@@ -1,0 +1,7 @@
+{
+  "name": "El Tayta - Gestión Integral de Restaurante",
+  "description": "Una plataforma completa para la gestión de restaurantes, incluyendo POS, inventario, delivery, mapa de mesas y análisis de datos con IA.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
